@@ -1,0 +1,42 @@
+name: Apply Patch and Create Release
+
+on:
+  push:
+    paths:
+      - 'minimal.patch'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Clone Target Repository
+        run: |
+          git clone https://github.com/yt-dlp/yt-dlp.git
+
+      - name: Apply Patch
+        run: |
+          cd yt-dlp/yt_dlp
+          patch -p1 < ../../minimal.patch
+        continue-on-error: true # Allow workflow to continue even if patch fails
+
+      - name: Tar Directory
+        run: |
+          cd yt-dlp
+          tar -czvf yt_dlp.tar.gz yt_dlp/
+
+      - name: Create Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: patched-def-${{ github.sha }}
+          release_name: Patched def (${{ github.sha }})
+          body: |
+            This release contains the 'yt_dlp' directory after applying the 'minimal.patch' file.
+          draft: false
+          prerelease: false
+          artifacts: yt-dlp/yt_dlp.tar.gz
