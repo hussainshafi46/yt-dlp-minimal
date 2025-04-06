@@ -21,8 +21,23 @@ jobs:
         run: |
           cd yt-dlp/yt_dlp
           patch -p1 < ../../minimal.patch
+          keep_files=("adobepass.py", "common.py", "commonprotocols.py", "extractors.py", "generic.py", "openload.py")
+          all_py_files=$(find . -type f -name "*.py")
+          while IFS= read -r file; do
+            keep=false
+            for keep_file in "${keep_files[@]}"; do
+              if [[ "$file" == "$keep_file" ]]; then
+                keep=true
+                break
+              fi
+            done
+            if [[ "$keep" == false ]]; then
+              rm "$file"
+              echo "Deleted: $file"
+            fi
+          done <<< "$all_py_files"
         continue-on-error: true # Allow workflow to continue even if patch fails
-
+        
       - name: Tar Directory
         run: |
           cd yt-dlp
