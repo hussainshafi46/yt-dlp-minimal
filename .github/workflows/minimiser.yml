@@ -40,6 +40,7 @@ jobs:
         
       - name: Tar Directory
         run: |
+          rm -f yt_dlp.tar.gz
           cd yt-dlp
           tar -czvf yt_dlp.tar.gz yt_dlp/ 
           mv yt_dlp.tar.gz ../
@@ -52,6 +53,7 @@ jobs:
 
       - name: Commit Changes
         run: |
+          git add yt_dlp.tar.gz
           git commit -m "Add minified yt-dlp tarball"
 
       - name: Push Changes
