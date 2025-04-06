@@ -41,17 +41,21 @@ jobs:
       - name: Tar Directory
         run: |
           cd yt-dlp
-          tar -czvf yt_dlp.tar.gz yt_dlp/
+          tar -czvf yt_dlp.tar.gz yt_dlp/ 
+          mv yt_dlp.tar.gz ../
+          cd ..
+          rm -rf yt-dlp
+      - name: Configure Git User
+        run: |
+          git config user.name "GitHub Actions Bot"
+          git config user.email "actions@github.com"
 
-      - name: Create Release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Commit Changes
+        run: |
+          git commit -m "Add minified yt-dlp tarball"
+
+      - name: Push Changes
+        uses: ad-m/github-push-action@master
         with:
-          tag_name: patched-def-${{ github.sha }}
-          release_name: Patched def (${{ github.sha }})
-          body: |
-            This release contains the 'yt_dlp' directory after applying the 'minimal.patch' file.
-          draft: false
-          prerelease: false
-          artifacts: yt-dlp/yt_dlp.tar.gz
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: ${{ github.ref_name }} # Pu
